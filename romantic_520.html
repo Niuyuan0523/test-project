@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+    <title>致我最爱的你 | 5.20</title>
+    <style>
+        /* 全局重置与响应式背景 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #0f0c20 0%, #15102a 40%, #241435 80%, #3a1c40 100%);
+            font-family: 'PingFang SC', 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* 移动端优先，靠下对齐预留上方爱心空间 */
+            box-sizing: border-box;
+        }
+
+        /* 电脑端设备微调对齐方式 */
+        @media (min-width: 769px) {
+            body, html {
+                align-items: center; /* PC端居中对齐 */
+            }
+        }
+
+        /* 背景画布 */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 浪漫流星 */
+        .shooting-star {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(-45deg, #5f91ff, rgba(0, 0, 255, 0));
+            border-radius: 999px;
+            filter: drop-shadow(0 0 6px #699bff);
+            animation: tail 3s ease-in-out infinite, shooting 3s ease-in-out infinite;
+            transform: rotate(-45deg);
+            z-index: 0;
+            opacity: 0;
+        }
+
+        @keyframes tail {
+            0% { width: 0; }
+            30% { width: 80px; }
+            100% { width: 0; }
+        }
+
+        @keyframes shooting {
+            0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
+            100% { transform: translateX(-400px) translateY(400px) rotate(-45deg); opacity: 0; }
+        }
+
+        /* 主舞台容器：负责上下布局 */
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-bottom: 5vh; /* 手机端距离底部留空，视觉更平衡 */
+        }
+
+        @media (min-width: 769px) {
+            .container {
+                margin-bottom: 0;
+                padding: 0;
+            }
+        }
+
+        /* 响应式玻璃质感卡片 */
+        .love-letter {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 30px 24px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(255, 192, 203, 0.05);
+            width: 100%;
+            max-width: 460px; /* 限制PC端最大宽度 */
+            box-sizing: border-box;
+            transform: translateY(30px);
+            opacity: 0;
+            animation: fadeInUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation-delay: 0.3s;
+        }
+
+        @media (min-width: 769px) {
+            .love-letter {
+                padding: 45px 40px;
+                border-radius: 30px;
+                margin-top: -40px; /* PC端微调往上提 */
+            }
+        }
+
+        @keyframes fadeInUp {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 标题自适应缩放 */
+        .title {
+            font-size: 1.6rem;
+            color: #ff758f;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 12px rgba(255, 117, 143, 0.5);
+            font-weight: 600;
+        }
+
+        @media (min-width: 769px) {
+            .title {
+                font-size: 2.1rem;
+                margin-bottom: 28px;
+            }
+        }
+
+        /* 打字机文本区域自适应 */
+        .typewriter-text {
+            font-size: 1rem;
+            color: #f0e6ef;
+            line-height: 1.8;
+            min-height: 140px; /* 预留手机端折行高度，防止卡片撑开抖动 */
+            text-align: left;
+            letter-spacing: 1px;
+            word-break: break-all;
+        }
+
+        @media (min-width: 769px) {
+            .typewriter-text {
+                font-size: 1.15rem;
+                line-height: 2;
+                min-height: 120px;
+            }
+        }
+
+        /* 闪烁光标 */
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1rem;
+            background-color: #ff758f;
+            margin-left: 3px;
+            animation: blink 0.8s infinite;
+            vertical-align: middle;
+        }
+
+        @media (min-width: 769px) {
+            .cursor {
+                height: 1.15rem;
+            }
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* 响应式按钮 */
+        .heart-btn {
+            margin-top: 25px;
+            background: linear-gradient(45deg, #ff4d6d, #ff758f);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 0.95rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(255, 77, 109, 0.3);
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            -webkit-tap-highlight-color: transparent; /* 去除手机端点击蓝色高亮 */
+        }
+
+        @media (min-width: 769px) {
+            .heart-btn {
+                margin-top: 35px;
+                padding: 12px 40px;
+                font-size: 1rem;
+                letter-spacing: 2px;
+            }
+            .heart-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 15px 25px rgba(255, 77, 109, 0.5);
+                background: linear-gradient(45deg, #ff758f, #ff8fa3);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="shooting-star" style="top: 10%; left: 85%; animation-delay: 0s;"></div>
+    <div class="shooting-star" style="top: 15%; left: 70%; animation-delay: 1.2s;"></div>
+    <div class="shooting-star" style="top: 25%; left: 90%; animation-delay: 2.5s;"></div>
+    
+    <canvas id="heartCanvas"></canvas>
+
+    <div class="container">
+        <div class="love-letter">
+            <div class="title">✨ 5.20 致最特别的你</div>
+            <div class="typewriter-text">
+                <span id="content"></span><span class="cursor"></span>
+            </div>
+            <button class="heart-btn" onclick="accelerateHeart()">让爱加速 💓</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 响应式 3D 粒子旋转爱心 ---
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        // 核心动态参数：根据屏幕宽度自适应爱心大小和位置
+        let isMobile = width <= 768;
+        let heartScale = isMobile ? Math.min(width, height) * 0.016 : Math.min(width, height) * 0.018; 
+        let centerY = isMobile ? height * 0.32 : height * 0.5 - 110; 
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            isMobile = width <= 768;
+            heartScale = isMobile ? Math.min(width, height) * 0.016 : Math.min(width, height) * 0.018;
+            centerY = isMobile ? height * 0.32 : height * 0.5 - 110;
+        });
+
+        const particles = [];
+        const particleCount = isMobile ? 450 : 650; // 手机端适当减少粒子数以确保平滑不卡顿
+        let rotationAngle = 0;
+        let speed = 0.01;
+
+        function getHeartPoint(t, scale) {
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+            const z = (Math.sin(t * 4) * 4); 
+            return { x: x * scale, y: -y * scale, z: z * scale };
+        }
+
+        // 初始化粒子群
+        for (let i = 0; i < particleCount; i++) {
+            const t = (i / particleCount) * Math.PI * 2;
+            const randScale = 1 + Math.random() * 0.3; // 粒子厚度随机
+            const point = getHeartPoint(t, randScale);
+            
+            particles.push({
+                x: point.x,
+                y: point.y,
+                z: point.z,
+                baseX: point.x,
+                baseY: point.y,
+                baseZ: point.z,
+                color: `rgba(${255 - Math.random()*30}, ${110 + Math.random()*70}, ${140 + Math.random()*40}, ${0.5 + Math.random()*0.5})`,
+                size: isMobile ? (0.8 + Math.random() * 1.5) : (1.2 + Math.random() * 1.8)
+            });
+        }
+
+        // 3D 渲染主循环
+        function render() {
+            ctx.clearRect(0, 0, width, height);
+            
+            const cx = width / 2;
+            const fov = isMobile ? 300 : 400; // 视距调整
+
+            rotationAngle += speed;
+            if (speed > 0.01) speed -= 0.0005;
+
+            // 绘制微弱背景星光
+            for(let i=0; i<20; i++) {
+                ctx.fillStyle = "rgba(255,255,255,0.25)";
+                ctx.fillRect(Math.sin(i*99)*width, Math.cos(i*33)*height, 1.2, 1.2);
+            }
+
+            const sinY = Math.sin(rotationAngle);
+            const cosY = Math.cos(rotationAngle);
+            const sinX = Math.sin(rotationAngle * 0.25);
+            const cosX = Math.cos(rotationAngle * 0.25);
+
+            particles.forEach(p => {
+                // 将初始公式点乘以当前的缩放比例心型
+                let rx = p.baseX * heartScale;
+                let ry = p.baseY * heartScale;
+                let rz = p.baseZ * heartScale;
+
+                // Y轴旋转
+                let x1 = rx * cosY - rz * sinY;
+                let z1 = rz * cosY + rx * sinY;
+                
+                // X轴旋转
+                let y2 = ry * cosX - z1 * sinX;
+                let z2 = z1 * cosX + ry * sinX;
+
+                // 3D 投影
+                const scaleProjected = fov / (fov + z2);
+                const xProjected = x1 * scaleProjected + cx;
+                const yProjected = y2 * scaleProjected + centerY;
+
+                ctx.beginPath();
+                ctx.arc(xProjected, yProjected, p.size * scaleProjected, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                if (!isMobile && z2 < 0) { // 仅在PC端开启发光阴影以保护手机算力
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#ff758f';
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fill();
+            });
+
+            requestAnimationFrame(render);
+        }
+
+        render();
+
+        // 互动加速
+        function accelerateHeart() {
+            speed = 0.08;
+            const btn = document.querySelector('.heart-btn');
+            btn.innerHTML = "心动超速中... ❤️";
+            setTimeout(() => btn.innerHTML = "让爱加速 💓", 2000);
+        }
+
+        // --- 打字机情书 ---
+        const loveLines = [
+            "有人说，宇宙中的原子都在成双结对。\n",
+            "而我在人海里，一眼就认出了属于我的那一颗。\n",
+            "你闪烁一下，我的世界就亮了一分。\n",
+            "这一路风霜雨雪，想执你之手，行至白头。\n",
+            "5.20 快乐，我的心动坐标，永远指向你。✨"
+        ];
+
+        let lineIndex = 0;
+        let charIndex = 0;
+        const textTarget = document.getElementById('content');
+
+        function typeWriter() {
+            if (lineIndex < loveLines.length) {
+                let currentLine = loveLines[lineIndex];
+                if (charIndex < currentLine.length) {
+                    let char = currentLine.charAt(charIndex);
+                    if (char === '\n') {
+                        textTarget.innerHTML += '<br>';
+                    } else {
+                        textTarget.innerHTML += char;
+                    }
+                    charIndex++;
+                    setTimeout(typeWriter, 110);
+                } else {
+                    charIndex = 0;
+                    lineIndex++;
+                    setTimeout(typeWriter, 700);
+                }
+            }
+        }
+
+        setTimeout(typeWriter, 1000);
+    </script>
+</body>
+</html>
